@@ -1,14 +1,16 @@
 mod generator;
+mod random;
 mod seeds;
-
-use uint::construct_uint;
 
 extern crate keccak;
 extern crate uint;
 
+use uint::construct_uint;
 construct_uint! {
     pub struct U256(4);
 }
+
+use U256 as u256;
 
 fn main() {
     println!("Hold your torch here!");
@@ -17,8 +19,15 @@ fn main() {
     std::io::stdin()
         .read_line(&mut input)
         .expect("Strange input!");
-    println!("Your input was: {}", &input);
 
     let id: u32 = input.trim().parse().expect("Give me a number!");
-    let _cc = generator::generate_map(id);
+    let seed: u256 = if id < 1 || id > 9000 {
+        println!("Oh, let's generate a random one...");
+        seeds::generate_seed()
+    } else {
+        println!("Your input ID was: {}", &input);
+        seeds::get_seed(id)
+    };
+
+    let _cc = generator::generate_map(seed);
 }

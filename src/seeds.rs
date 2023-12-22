@@ -1,19 +1,39 @@
-use std::{str::FromStr, time::SystemTime};
+use std::{
+    convert::TryInto,
+    str::FromStr,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use keccak::f1600;
 
 use crate::U256 as u256;
 
-pub(crate) fn generate_seed(id: u32) -> u256 {
-    let time = SystemTime::now();
+pub(crate) fn generate_seed() -> u256 {
+    let mut state: [u64; 25] = [0; 25];
 
-    let mut state: [u64; 25] = [0;25];
     let mut i = 0;
-    while i < state.len(){
-        // state[i] = 
+    while i < state.len() {
+        state[i] = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+            .try_into()
+            .unwrap();
+        i += 1;
     }
 
-    u256::zero()
+    f1600(&mut state);
+
+    let mut result = u256::zero();
+
+    result.0[0] = state[0];
+    result.0[1] = state[1];
+    result.0[2] = state[2];
+    result.0[3] = state[3];
+
+    println!("{}", result);
+
+    result
 }
 
 pub(crate) fn get_seed(id: u32) -> u256 {
@@ -53314,4 +53334,5 @@ fn test_seed() {
         u256::from_str("0xdf9621159adbc3021621f26ac211f776d5eb2ae0c1fc4a81a6e4b840a68e1930")
             .unwrap()
     );
+    generate_seed();
 }
