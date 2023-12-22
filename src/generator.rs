@@ -21,6 +21,7 @@ impl CryptsAndCaverns {
 }
 
 pub fn generate_map(seed: u256) -> CryptsAndCaverns {
+    println!("We got the seed! {:#X}", seed);
     let mut cc = CryptsAndCaverns::new();
 
     cc
