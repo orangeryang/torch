@@ -15,7 +15,7 @@ pub(crate) fn random(seed: u256, min: u128, max: u128) -> u128 {
     input = add_padding(input);
 
     if input.len() % 17 != 0 {
-        panic!(b"Invalid keccak input size");
+        panic!("Invalid keccak input size");
     }
     let mut state = [0u64; 25];
     for chunk in input.chunks(17) {
@@ -27,16 +27,15 @@ pub(crate) fn random(seed: u256, min: u128, max: u128) -> u128 {
 
     let mut result: u256 = u256::zero();
 
-    result.0[0] = state[2];
-    result.0[1] = state[3];
-    result.0[2] = state[0];
-    result.0[3] = state[1];
+    result.0[0] = state[0].reverse_bits();
+    result.0[1] = state[1].reverse_bits();
+    result.0[2] = state[2].reverse_bits();
+    result.0[3] = state[3].reverse_bits();
 
     println!("result {:#X}", result);
-    print!(" {:#X}", result.0[3]);
-    print!(" {:#X}", result.0[2]);
-    print!(" {:#X}", result.0[1]);
-    println!(" {:#X}", result.0[0]);
+
+    // [DEBUG] 0xc3d781a79a1560115cfb88a23f1e9bd9
+    // [DEBUG] 0x60ecefa03101012303f4335697c687dd
 
     (result % (max - min) + min).as_u128()
 }
