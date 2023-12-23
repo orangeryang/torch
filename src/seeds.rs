@@ -31,6 +31,11 @@ pub(crate) fn generate_seed() -> u256 {
     result.0[2] = state[2];
     result.0[3] = state[3];
 
+    // println!("{:#X}",state[3]);
+    // println!("{:#X}",state[2]);
+    // println!("{:#X}",state[1]);
+    // println!("{:#X}",state[0]);
+
     // println!("{:#X}", result);
 
     result
