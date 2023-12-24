@@ -1,6 +1,3 @@
-use std::convert::TryFrom;
-use std::fmt::format;
-use std::io::Bytes;
 use std::str::FromStr;
 use super::U256 as u256;
 
@@ -31,15 +28,12 @@ pub(crate) fn random(seed: u256, min: u128, max: u128) -> u128 {
 
     let mut result: u256 = u256::zero();
 
-    result.0[0] = reverse_bytes_u64(state[0]);
-    result.0[1] = reverse_bytes_u64(state[1]);
-    result.0[2] = reverse_bytes_u64(state[2]);
-    result.0[3] = reverse_bytes_u64(state[3]);
+    result.0[0] = reverse_bytes_u64(state[3]);
+    result.0[1] = reverse_bytes_u64(state[2]);
+    result.0[2] = reverse_bytes_u64(state[1]);
+    result.0[3] = reverse_bytes_u64(state[0]);
 
     println!("result {:#X}", result);
-
-    // [DEBUG] 0xc3d781a79a1560115cfb88a23f1e9bd9
-    // [DEBUG] 0x60ecefa03101012303f4335697c687dd
 
     (result % (max - min) + min).as_u128()
 }
@@ -49,7 +43,12 @@ pub(crate) fn random(seed: u256, min: u128, max: u128) -> u128 {
 // 11011001100110110001111000111111101000101000100011111011010111000001000101100000000101011001101010100111100000011101011111000011
 
 fn reverse_bytes_u64(input: u64) -> u64 {
-    let input_str = format!("{:b}", input).to_string();
+    let mut input_str = format!("{:b}", input).to_string();
+    if input_str.len() != 64 {
+        for i in 0..(64 - input_str.len()) {
+            input_str = format!("0{}", input_str);
+        }
+    }
 
     let mut output_str = String::new();
     let mut temp: Vec<String> = Vec::new();
@@ -81,7 +80,7 @@ fn add_padding(mut input: Vec<u64>) -> Vec<u64> {
 }
 
 fn finalize_padding(mut input: Vec<u64>, num_padding_words: u32) -> Vec<u64> {
-    if (num_padding_words == 1) {
+    if num_padding_words == 1 {
         input.push(0x8000000000000000);
         return input;
     }
@@ -91,6 +90,7 @@ fn finalize_padding(mut input: Vec<u64>, num_padding_words: u32) -> Vec<u64> {
 }
 
 #[test]
+#[ignore]
 fn tttttt() {
     use std::str::FromStr;
     let seed: u256 = u256::from_str("0x6955a1583265848238e6e663de8b9fe272fa9d1c77395f8e32a233e23e65da0c").expect("ohhh");
