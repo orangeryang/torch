@@ -1,3 +1,7 @@
+use std::convert::TryFrom;
+use std::fmt::format;
+use std::io::Bytes;
+use std::str::FromStr;
 use super::U256 as u256;
 
 pub(crate) fn random(seed: u256, min: u128, max: u128) -> u128 {
@@ -7,10 +11,10 @@ pub(crate) fn random(seed: u256, min: u128, max: u128) -> u128 {
 
     let mut input: Vec<u64> = vec![];
 
-    input.push(seed.0[3].reverse_bits());
-    input.push(seed.0[2].reverse_bits());
-    input.push(seed.0[1].reverse_bits());
-    input.push(seed.0[0].reverse_bits());
+    input.push(reverse_bytes_u64(seed.0[3]));
+    input.push(reverse_bytes_u64(seed.0[2]));
+    input.push(reverse_bytes_u64(seed.0[1]));
+    input.push(reverse_bytes_u64(seed.0[0]));
 
     input = add_padding(input);
 
@@ -27,10 +31,10 @@ pub(crate) fn random(seed: u256, min: u128, max: u128) -> u128 {
 
     let mut result: u256 = u256::zero();
 
-    result.0[0] = state[0].reverse_bits();
-    result.0[1] = state[1].reverse_bits();
-    result.0[2] = state[2].reverse_bits();
-    result.0[3] = state[3].reverse_bits();
+    result.0[0] = reverse_bytes_u64(state[0]);
+    result.0[1] = reverse_bytes_u64(state[1]);
+    result.0[2] = reverse_bytes_u64(state[2]);
+    result.0[3] = reverse_bytes_u64(state[3]);
 
     println!("result {:#X}", result);
 
@@ -38,6 +42,30 @@ pub(crate) fn random(seed: u256, min: u128, max: u128) -> u128 {
     // [DEBUG] 0x60ecefa03101012303f4335697c687dd
 
     (result % (max - min) + min).as_u128()
+}
+
+// 11000011110101111000000110100111100110100001010101100000000100010101110011111011100010001010001000111111000111101001101111011001
+
+// 11011001100110110001111000111111101000101000100011111011010111000001000101100000000101011001101010100111100000011101011111000011
+
+fn reverse_bytes_u64(input: u64) -> u64 {
+    let input_str = format!("{:b}", input).to_string();
+
+    let mut output_str = String::new();
+    let mut temp: Vec<String> = Vec::new();
+    let mut temp_str = String::new();
+    for b in input_str.chars() {
+        temp_str += &b.to_string();
+        if temp_str.len() == 8 {
+            temp.push(temp_str);
+            temp_str = String::new();
+        }
+    }
+
+    for v in temp.iter().rev() {
+        output_str += v;
+    }
+    u64::from_str_radix(&output_str, 2).unwrap()
 }
 
 fn add_padding(mut input: Vec<u64>) -> Vec<u64> {
@@ -71,4 +99,8 @@ fn tttttt() {
     let max: u128 = 15;
     let result = random(seed, min, max);
     assert_eq!(result, 9);
+
+    let a: u64 = 0xc3d781a79a156011;
+    let b: u64 = 0x1160159AA781D7C3;
+    assert_eq!(format!("{:#X}", b), format!("{:#X}", reverse_bytes_u64(a)));
 }
