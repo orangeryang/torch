@@ -12,6 +12,8 @@ construct_uint! {
 
 use U256 as u256;
 
+use generator::{CryptsAndCaverns, generate_map};
+
 fn main() {
     println!("Hold your torch here!");
 
@@ -29,5 +31,6 @@ fn main() {
         seeds::get_seed(id)
     };
 
-    let _cc = generator::generate_map(seed);
+    let cc: CryptsAndCaverns = generate_map(seed);
+    println!("{}", &cc.name);
 }
