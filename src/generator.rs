@@ -36,9 +36,10 @@ impl CryptsAndCaverns {
 
 pub fn generate_map(seed: u256) -> CryptsAndCaverns {
     println!("We got the seed! {:#X}", seed);
-    
+
     let mut settings: Settings = seed.build_setting();
-    
+
+
     CryptsAndCaverns::new()
 }
 
@@ -46,15 +47,15 @@ impl u256 {
     pub fn random_shift(self, shift: u32, min: u32, max: u32) -> u32 {
         random(self << shift, min, max)
     }
-    
+
     pub fn random_add(self, add: u32, min: u32, max: u32) -> u32 {
         random(self + add, min, max)
     }
-    
+
     pub fn build_setting(self) -> Settings {
         let size = self.random_shift(4, 8, 25) as u32;
         let length = size ^ 2 / 256 + 1;
-        
+
         Settings {
             seed: self,
             size,
@@ -70,32 +71,32 @@ impl Settings {
         self.counter += 1;
         result
     }
-    
+
     pub fn random_add(&mut self, min: u32, max: u32) -> u32 {
         let result = self.seed.random_add(self.counter, min, max);
         self.counter += 1;
         result
     }
-    
+
     pub fn generate_cc(mut self) -> CryptsAndCaverns {
         if self.random_add(0, 100) > 30 {
-            self.generate_rooms();
+            let (rooms, floor) = self.generate_rooms();
         }
-        
-        
+
+
         CryptsAndCaverns::new()
     }
-    
+
     pub fn generate_rooms(&mut self) -> (Vec<Room>, Vec<Vec<u8>>) {
         let min_rooms = self.size / 3;
         let max_rooms = self.size;
         let min_room_size = 2_u32;
         let max_room_size = self.size / 3;
-        
+
         let mut num_of_rooms = self.random_add(min_rooms, max_rooms);
         let mut rooms: Vec<Room> = Vec::new();
         let mut floor: Vec<Vec<u8>> = vec![vec![0; self.size as usize]; self.size as usize];
-        
+
         let mut safety_check: u16 = 256;
         while num_of_rooms > 0 && safety_check > 0 {
             let width = self.random_add(min_room_size, max_room_size);
@@ -110,8 +111,28 @@ impl Settings {
             }
             safety_check -= 1;
         }
-        
+
         (rooms, floor)
+    }
+
+    pub fn generate_hallways(&mut self, rooms: &Vec<Room>) -> Vec<Vec<u8>> {
+        if rooms.is_empty() {
+            return vec![vec![0; self.size as usize]; self.size as usize];
+        }
+
+        let pre_x = rooms[0].x + rooms[0].width / 2;
+        let pre_y = rooms[0].y + rooms[0].height / 2;
+
+        for i in 1..rooms.len() - 1 {
+            let cur_x = rooms[i].x + rooms[i].width / 2;
+            let cur_y = rooms[i].y + rooms[i].height / 2;
+
+            if cur_x == pre_x {
+                todo!()
+            }
+        }
+
+        vec![vec![0; self.size as usize]; self.size as usize]
     }
 }
 
