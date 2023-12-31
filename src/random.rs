@@ -37,10 +37,6 @@ pub(crate) fn random(seed: u256, min: u32, max: u32) -> u32 {
     (result % (max - min) + min).as_u32()
 }
 
-// 11000011110101111000000110100111100110100001010101100000000100010101110011111011100010001010001000111111000111101001101111011001
-
-// 11011001100110110001111000111111101000101000100011111011010111000001000101100000000101011001101010100111100000011101011111000011
-
 fn reverse_bytes_u64(input: u64) -> u64 {
     let mut input_str = format!("{:b}", input).to_string();
     if input_str.len() != 64 {
@@ -89,11 +85,11 @@ fn finalize_padding(mut input: Vec<u64>, num_padding_words: u32) -> Vec<u64> {
 }
 
 #[test]
-#[ignore]
-fn tttttt() {
+// #[ignore]
+fn test_it() {
     use std::str::FromStr;
     let seed: u256 = u256::from_str("0x6955a1583265848238e6e663de8b9fe272fa9d1c77395f8e32a233e23e65da0c").expect("ohhh");
-    println!("seed {:#X}", seed);
+    // println!("seed {:#X}", seed);
     let min = 1;
     let max = 15;
     let result = random(seed, min, max);

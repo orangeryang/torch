@@ -11,7 +11,6 @@ construct_uint! {
 }
 
 use U256 as u256;
-
 use generator::{CryptsAndCaverns, generate_map};
 
 fn main() {
