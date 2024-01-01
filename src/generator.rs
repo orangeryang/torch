@@ -31,27 +31,18 @@ pub struct Room {
 
 pub fn generate_map(seed: u256) -> CryptsAndCaverns {
     println!("We got the seed! {:#X}", seed);
-    
     seed.build_setting().generate_cc()
 }
 
 impl Settings {
     pub fn generate_cc(mut self) -> CryptsAndCaverns {
-        let (layout,
-            points,
-            doors,
-            structure) =
-            if self.random_add(0, 100) > 30 {
-                self.generate_crypts()
-            } else {
-                self.generate_caverns()
-            };
+        let (layout, points, doors, structure) = if self.random_add(0, 100) > 30 {
+            self.generate_crypts()
+        } else {
+            self.generate_caverns()
+        };
         
-        let (name,
-            affinity,
-            legendary,
-            environment) =
-            self.generate_name();
+        let (name, affinity, legendary, environment) = self.generate_name();
         
         CryptsAndCaverns {
             seed: self.seed,
@@ -127,7 +118,12 @@ impl Settings {
             let height = self.random_add(2, size_divided_by_three);
             let x = self.random_add(1, size - 1 - width);
             let y = self.random_add(1, size - 1 - height);
-            let current = Room { x, y, width, height };
+            let current = Room {
+                x,
+                y,
+                width,
+                height,
+            };
             if current.is_valid_room(&rooms) {
                 floor.mark_the_floor(&current);
                 rooms.push(current);
@@ -204,7 +200,15 @@ impl Settings {
         todo!()
     }
     
-    fn explore_in_cavern(&mut self, cavern: Vec<Vec<u8>>, holes: u32, mut last_direction: u32, #[allow(unused_assignments)] mut next_direction: u32, mut x: u32, mut y: u32) -> Vec<Vec<u8>> {
+    fn explore_in_cavern(
+        &mut self,
+        cavern: Vec<Vec<u8>>,
+        holes: u32,
+        mut last_direction: u32,
+        #[allow(unused_assignments)] mut next_direction: u32,
+        mut x: u32,
+        mut y: u32,
+    ) -> Vec<Vec<u8>> {
         if last_direction == 0 {
             let new_direction = self.random_shift(1, 4);
             last_direction = new_direction;
@@ -212,24 +216,32 @@ impl Settings {
         } else {
             let direction_seed = self.random_shift(0, 100);
             if direction_seed <= 25 {
-                next_direction = if last_direction == 3 { 0 } else { last_direction + 1 };
+                next_direction = if last_direction == 3 {
+                    0
+                } else {
+                    last_direction + 1
+                };
             } else if direction_seed <= 50 {
-                next_direction = if last_direction == 0 { 3 } else { last_direction - 1 };
+                next_direction = if last_direction == 0 {
+                    3
+                } else {
+                    last_direction - 1
+                };
             } else {
                 next_direction = last_direction;
             }
         }
         
-        (x, y) =
-            if next_direction == 0 {
-                (if x > 0 { x - 1 } else { x }, y)
-            } else if next_direction == 1 {
-                (x, y + 1)
-            } else if next_direction == 2 {
-                (x + 1, y)
-            } else { // next_direction == 3
-                (x, if y > 0 { y - 1 } else { y })
-            };
+        (x, y) = if next_direction == 0 {
+            (if x > 0 { x - 1 } else { x }, y)
+        } else if next_direction == 1 {
+            (x, y + 1)
+        } else if next_direction == 2 {
+            (x + 1, y)
+        } else {
+            // next_direction == 3
+            (x, if y > 0 { y - 1 } else { y })
+        };
         
         if x > 0 && x < self.size && y > 0 && y < self.size {
             self.explore_in_cavern(cavern, holes, last_direction, next_direction, x, y)
@@ -276,14 +288,22 @@ trait Map {
 
 impl Map for Vec<Vec<u8>> {
     fn connect_horizontal(&mut self, current_x: u32, previous_x: u32, y: u32) {
-        let (min, max) = if current_x < previous_x { (current_x, previous_x) } else { (previous_x, current_x) };
+        let (min, max) = if current_x < previous_x {
+            (current_x, previous_x)
+        } else {
+            (previous_x, current_x)
+        };
         for x in min..max {
             self[x as usize][y as usize] = 1;
         }
     }
     
     fn connect_vertical(&mut self, current_y: u32, previous_y: u32, x: u32) {
-        let (min, max) = if current_y < previous_y { (current_y, previous_y) } else { (previous_y, current_y) };
+        let (min, max) = if current_y < previous_y {
+            (current_y, previous_y)
+        } else {
+            (previous_y, current_y)
+        };
         for y in min..max {
             self[x as usize][y as usize] = 1;
         }
@@ -332,11 +352,11 @@ impl Room {
             if room.x - 1 < self.x + self.width
                 && room.x + room.width + 1 > self.x
                 && room.y - 1 < self.y + self.height
-                && room.y + room.height > self.y {
+                && room.y + room.height > self.y
+            {
                 return false;
             }
         }
         true
     }
 }
-
