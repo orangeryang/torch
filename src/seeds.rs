@@ -53332,5 +53332,4 @@ fn test_seed() {
         u256::from_str("0xdf9621159adbc3021621f26ac211f776d5eb2ae0c1fc4a81a6e4b840a68e1930")
             .unwrap()
     );
-    generate_seed();
 }

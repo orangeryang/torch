@@ -40,7 +40,7 @@ pub(crate) fn random(seed: u256, min: u32, max: u32) -> u32 {
 fn reverse_bytes_u64(input: u64) -> u64 {
     let mut input_str = format!("{:b}", input).to_string();
     if input_str.len() != 64 {
-        for i in 0..(64 - input_str.len()) {
+        for _i in 0..(64 - input_str.len()) {
             input_str = format!("0{}", input_str);
         }
     }

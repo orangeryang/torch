@@ -154,16 +154,16 @@ impl Settings {
             let cur_y = rooms[i].y + rooms[i].height / 2;
             
             if cur_x == pre_x {
-                hallways.connect_vertical(cur_y, pre_y, cur_x, self.size);
+                hallways.connect_vertical(cur_y, pre_y, cur_x);
             } else if cur_y == pre_y {
-                hallways.connect_horizontal(cur_x, pre_x, cur_y, self.size);
+                hallways.connect_horizontal(cur_x, pre_x, cur_y);
             } else {
                 if self.random_add(1, 2) == 1 {
-                    hallways.connect_horizontal(cur_x, pre_x, cur_y, self.size);
-                    hallways.connect_vertical(cur_y, pre_y, cur_x, self.size);
+                    hallways.connect_horizontal(cur_x, pre_x, cur_y);
+                    hallways.connect_vertical(cur_y, pre_y, cur_x);
                 } else {
-                    hallways.connect_vertical(cur_y, pre_y, cur_x, self.size);
-                    hallways.connect_horizontal(cur_x, pre_x, cur_y, self.size);
+                    hallways.connect_vertical(cur_y, pre_y, cur_x);
+                    hallways.connect_horizontal(cur_x, pre_x, cur_y);
                 }
             }
             
@@ -192,12 +192,55 @@ impl Settings {
         points
     }
     
-    fn generate_cavern(&self) -> Vec<Vec<u8>> {
-        todo!()
+    fn generate_cavern(&mut self) -> Vec<Vec<u8>> {
+        let holes = self.size / 2;
+        
+        let x = self.random_add(0, self.size);
+        let y = self.random_add(0, self.size);
+        self.explore_in_cavern(self.new_map(), holes, 0, 0, x, y)
     }
     
     fn generate_name(&self) -> (String, String, u8, u8) {
         todo!()
+    }
+    
+    
+    fn explore_in_cavern(&mut self, cavern: Vec<Vec<u8>>, holes: u32, mut last_direction: u32, #[allow(unused_assignments)] mut next_direction: u32, mut x: u32, mut y: u32) -> Vec<Vec<u8>> {
+        if last_direction == 0 {
+            let new_direction = self.random_shift(1, 4);
+            last_direction = new_direction;
+            next_direction = new_direction;
+        } else {
+            let direction_seed = self.random_shift(0, 100);
+            if direction_seed <= 25 {
+                next_direction = if last_direction == 3 { 0 } else { last_direction + 1 };
+            } else if direction_seed <= 50 {
+                next_direction = if last_direction == 0 { 3 } else { last_direction - 1 };
+            } else {
+                next_direction = last_direction;
+            }
+        }
+        
+        (x, y) =
+            if next_direction == 0 {
+                (if x > 0 { x - 1 } else { x }, y)
+            } else if next_direction == 1 {
+                (x, y + 1)
+            } else if next_direction == 2 {
+                (x + 1, y)
+            } else { // next_direction == 3
+                (x, if y > 0 { y - 1 } else { y })
+            };
+        
+        if x > 0 && x < self.size && y > 0 && y < self.size {
+            self.explore_in_cavern(cavern, holes, last_direction, next_direction, x, y)
+        } else if holes > 1 {
+            x = self.random_add(0, self.size);
+            y = self.random_add(0, self.size);
+            self.explore_in_cavern(cavern, holes - 1, last_direction, next_direction, x, y)
+        } else {
+            cavern
+        }
     }
 }
 
@@ -224,8 +267,8 @@ impl u256 {
 }
 
 trait Map {
-    fn connect_horizontal(&mut self, current_x: u32, previous_x: u32, y: u32, size: u32);
-    fn connect_vertical(&mut self, current_y: u32, previous_y: u32, x: u32, size: u32);
+    fn connect_horizontal(&mut self, current_x: u32, previous_x: u32, y: u32);
+    fn connect_vertical(&mut self, current_y: u32, previous_y: u32, x: u32);
     fn mark_the_floor(&mut self, current: &Room);
     fn subtract(&mut self, other: &Vec<Vec<u8>>);
     fn add(&mut self, other: &Vec<Vec<u8>>);
@@ -233,14 +276,14 @@ trait Map {
 }
 
 impl Map for Vec<Vec<u8>> {
-    fn connect_horizontal(&mut self, current_x: u32, previous_x: u32, y: u32, size: u32) {
+    fn connect_horizontal(&mut self, current_x: u32, previous_x: u32, y: u32) {
         let (min, max) = if current_x < previous_x { (current_x, previous_x) } else { (previous_x, current_x) };
         for x in min..max {
             self[x as usize][y as usize] = 1;
         }
     }
     
-    fn connect_vertical(&mut self, current_y: u32, previous_y: u32, x: u32, size: u32) {
+    fn connect_vertical(&mut self, current_y: u32, previous_y: u32, x: u32) {
         let (min, max) = if current_y < previous_y { (current_y, previous_y) } else { (previous_y, current_y) };
         for y in min..max {
             self[x as usize][y as usize] = 1;
