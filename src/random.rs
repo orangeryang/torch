@@ -32,7 +32,7 @@ pub(crate) fn random(seed: u256, min: u32, max: u32) -> u32 {
     result.0[2] = reverse_bytes_u64(state[1]);
     result.0[3] = reverse_bytes_u64(state[0]);
 
-    println!("result {:#X}", result);
+    // println!("result {:#X}", result);
 
     (result % (max - min) + min).as_u32()
 }

@@ -204,7 +204,6 @@ impl Settings {
         todo!()
     }
     
-    
     fn explore_in_cavern(&mut self, cavern: Vec<Vec<u8>>, holes: u32, mut last_direction: u32, #[allow(unused_assignments)] mut next_direction: u32, mut x: u32, mut y: u32) -> Vec<Vec<u8>> {
         if last_direction == 0 {
             let new_direction = self.random_shift(1, 4);

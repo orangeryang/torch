@@ -15,12 +15,12 @@ use generator::{CryptsAndCaverns, generate_map};
 
 fn main() {
     println!("Hold your torch here!");
-
+    
     let mut input = String::new();
     std::io::stdin()
         .read_line(&mut input)
         .expect("Strange input!");
-
+    
     let id: u32 = input.trim().parse().expect("Give me a number!");
     let seed: u256 = if id < 1 || id > 9000 {
         println!("Oh, let's generate a random one...");
@@ -29,7 +29,7 @@ fn main() {
         println!("Your input ID was: {}", &input);
         seeds::get_seed(id)
     };
-
-    let cc: CryptsAndCaverns = generate_map(seed);
+    
+    let cc = generate_map(seed);
     println!("{}", &cc.name);
 }
