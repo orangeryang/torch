@@ -116,7 +116,7 @@ impl Settings {
         let mut rooms: Vec<Room> = Vec::new();
         let mut floor: Vec<Vec<u8>> = self.new_map();
 
-        let mut safety_check: u16 = 256;
+        let mut safety_check: u16 = 257;
         while num_of_rooms > 0 && safety_check > 0 {
             let width = self.random_add(2, size_divided_by_three);
             let height = self.random_add(2, size_divided_by_three);
