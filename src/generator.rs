@@ -177,7 +177,10 @@ impl Settings {
     fn genera_points(&mut self, map: &Vec<Vec<u8>>, probability: u32) -> Vec<Vec<u8>> {
         let mut points = self.new_map();
         
-        let prob = self.random_add(1, probability);
+        let mut prob = self.random_add(0, probability);
+        if prob == 0 {
+            prob = 1;
+        }
         for i in 0..map.len() {
             for j in 0..map[i].len() {
                 if map[i][j] == 1 && self.random_add(1, 100) <= prob {
