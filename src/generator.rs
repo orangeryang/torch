@@ -436,6 +436,10 @@ impl Room {
 
 // impl fmt::Debug for CryptsAndCaverns{
 //     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-//         todo!()
+//         for inner_vec in &cc.layout {
+//             let inner_vec_str: Vec<String> = inner_vec.iter().map(|&x| x.to_string()).collect();
+//             let joined_str = inner_vec_str.join(" ");
+//             println!("{}", joined_str);
+//         }
 //     }
 // }
