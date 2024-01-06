@@ -126,7 +126,7 @@ impl Settings {
                 height,
             };
             if current.is_valid_room(&rooms) {
-                floor.mark_the_floor(&current);
+                floor.set_room(&current);
                 rooms.push(current);
                 num_of_rooms -= 1;
             }
@@ -271,13 +271,15 @@ impl Settings {
 
     fn explore_in_cavern(
         &mut self,
-        cavern: Vec<Vec<u8>>,
+        mut cavern: Vec<Vec<u8>>,
         holes: u32,
         mut last_direction: u32,
         #[allow(unused_assignments)] mut next_direction: u32,
         mut x: u32,
         mut y: u32,
     ) -> Vec<Vec<u8>> {
+        cavern.set(x,y);
+        
         if last_direction == 0 {
             let new_direction = self.random_shift(1, 4);
             last_direction = new_direction;
@@ -354,7 +356,8 @@ impl u256 {
 trait Map {
     fn connect_horizontal(&mut self, current_x: u32, previous_x: u32, y: u32);
     fn connect_vertical(&mut self, current_y: u32, previous_y: u32, x: u32);
-    fn mark_the_floor(&mut self, current: &Room);
+    fn set_room(&mut self, current: &Room);
+    fn set(&mut self, x: u32, y: u32);
     fn subtract(&mut self, other: &Vec<Vec<u8>>);
     fn add(&mut self, other: &Vec<Vec<u8>>);
     fn count(&self) -> u32;
@@ -383,12 +386,16 @@ impl Map for Vec<Vec<u8>> {
         }
     }
 
-    fn mark_the_floor(&mut self, current: &Room) {
+    fn set_room(&mut self, current: &Room) {
         for x in current.x..current.x + current.width {
             for y in current.y..current.y + current.height {
                 self[y as usize][x as usize] = 1;
             }
         }
+    }
+    
+    fn set(&mut self, x: u32, y: u32) {
+        self[y as usize][x as usize] = 1;
     }
 
     fn subtract(&mut self, other: &Vec<Vec<u8>>) {
