@@ -1,11 +1,11 @@
-use crate::U256 as u256;
 use std::fmt;
 use std::fmt::Formatter;
+
+use crate::U256 as u256;
 
 use super::random::random;
 use super::seeds::{LAND, PEOPLE, PREFIX, SUFFIX, UNIQUE};
 
-#[derive(Debug)]
 pub struct CryptsAndCaverns {
     pub seed: u256,
     pub size: u32,
@@ -19,6 +19,7 @@ pub struct CryptsAndCaverns {
     pub doors: Vec<Vec<u8>>,
 }
 
+#[derive(Debug)]
 pub struct Settings {
     pub seed: u256,
     pub size: u32,
@@ -26,16 +27,12 @@ pub struct Settings {
     pub counter: u32,
 }
 
+#[derive(Debug)]
 pub struct Room {
     x: u32,
     y: u32,
     width: u32,
     height: u32,
-}
-
-pub fn generate_map(seed: u256) -> CryptsAndCaverns {
-    println!("We got the seed! {:#X}", seed);
-    seed.build_setting().generate_cc()
 }
 
 impl Settings {
@@ -85,11 +82,11 @@ impl Settings {
 
         let count = hallways.count();
         let doors = if count > 0 {
-            self.genera_points(&hallways, 40 / (count as f64).sqrt() as u32)
+            self.generate_points(&hallways, 40 / (count as f64).sqrt() as u32)
         } else {
             self.new_map()
         };
-        let points = self.genera_points(&floor, 12 / ((self.size - 6) as f64).sqrt() as u32);
+        let points = self.generate_points(&floor, 12 / ((self.size - 6) as f64).sqrt() as u32);
 
         (layout, points, doors, 0)
     }
@@ -101,8 +98,8 @@ impl Settings {
             count = 7;
         }
 
-        let mut points = self.genera_points(&cavern, 12 / ((count - 6) as f64).sqrt() as u32);
-        let doors = self.genera_points(&cavern, 40 / (count as f64).sqrt() as u32);
+        let mut points = self.generate_points(&cavern, 12 / ((count - 6) as f64).sqrt() as u32);
+        let doors = self.generate_points(&cavern, 40 / (count as f64).sqrt() as u32);
 
         points.subtract(&doors);
 
@@ -163,16 +160,16 @@ impl Settings {
             let cur_y = rooms[i].y + rooms[i].height / 2;
 
             if cur_x == pre_x {
-                hallways.connect_vertical(cur_y, pre_y, cur_x);
+                hallways.connect_vertical(cur_y, pre_y, pre_x);
             } else if cur_y == pre_y {
-                hallways.connect_horizontal(cur_x, pre_x, cur_y);
+                hallways.connect_horizontal(cur_x, pre_x, pre_y);
             } else {
-                if self.random_add(1, 2) == 1 {
-                    hallways.connect_horizontal(cur_x, pre_x, cur_y);
-                    hallways.connect_vertical(cur_y, pre_y, cur_x);
+                if self.random_add(1, 2) == 2 {
+                    hallways.connect_horizontal(cur_x, pre_x, pre_y);
+                    hallways.connect_vertical(pre_y, cur_y, cur_x);
                 } else {
-                    hallways.connect_vertical(cur_y, pre_y, cur_x);
-                    hallways.connect_horizontal(cur_x, pre_x, cur_y);
+                    hallways.connect_vertical(cur_y, pre_y, pre_x);
+                    hallways.connect_horizontal(pre_x, cur_x, cur_y);
                 }
             }
 
@@ -187,17 +184,17 @@ impl Settings {
         vec![vec![0; self.size as usize]; self.size as usize]
     }
 
-    fn genera_points(&mut self, map: &Vec<Vec<u8>>, probability: u32) -> Vec<Vec<u8>> {
+    fn generate_points(&mut self, map: &Vec<Vec<u8>>, probability: u32) -> Vec<Vec<u8>> {
         let mut points = self.new_map();
 
         let mut prob = self.random_add(0, probability);
         if prob == 0 {
             prob = 1;
         }
-        for i in 0..map.len() {
-            for j in 0..map[i].len() {
-                if map[i][j] == 1 && self.random_add(1, 100) <= prob {
-                    points[i][j] = 1;
+        for j in 0..map.len() {
+            for i in 0..map[j].len() {
+                if map[j][i] == 1 && self.random_add(0, 100) <= prob {
+                    points[j][i] = 1;
                 }
             }
         }
@@ -328,6 +325,11 @@ impl Settings {
 }
 
 impl u256 {
+    pub fn generate_map(self) -> CryptsAndCaverns {
+        println!("We got the seed! {:#X}", self);
+        self.build_setting().generate_cc()
+    }
+
     fn random_shift(self, shift: u32, min: u32, max: u32) -> u32 {
         random(self << shift, min, max)
     }
@@ -366,7 +368,7 @@ impl Map for Vec<Vec<u8>> {
             (previous_x, current_x)
         };
         for x in min..max {
-            self[x as usize][y as usize] = 1;
+            self[y as usize][x as usize] = 1;
         }
     }
 
@@ -377,14 +379,14 @@ impl Map for Vec<Vec<u8>> {
             (previous_y, current_y)
         };
         for y in min..max {
-            self[x as usize][y as usize] = 1;
+            self[y as usize][x as usize] = 1;
         }
     }
 
     fn mark_the_floor(&mut self, current: &Room) {
         for x in current.x..current.x + current.width {
             for y in current.y..current.y + current.height {
-                self[x as usize][y as usize] = 1;
+                self[y as usize][x as usize] = 1;
             }
         }
     }
@@ -392,7 +394,7 @@ impl Map for Vec<Vec<u8>> {
     fn subtract(&mut self, other: &Vec<Vec<u8>>) {
         for i in 0..self.len() {
             for j in 0..self[i].len() {
-                self[i][j] &= !other[i][j];
+                self[j][i] &= !other[j][i];
             }
         }
     }
@@ -400,7 +402,7 @@ impl Map for Vec<Vec<u8>> {
     fn add(&mut self, other: &Vec<Vec<u8>>) {
         for i in 0..self.len() {
             for j in 0..self[i].len() {
-                self[i][j] |= other[i][j];
+                self[j][i] |= other[j][i];
             }
         }
     }
@@ -409,7 +411,7 @@ impl Map for Vec<Vec<u8>> {
         let mut count = 0;
         for i in 0..self.len() {
             for j in 0..self[i].len() {
-                if self[i][j] == 1 {
+                if self[j][i] == 1 {
                     count += 1;
                 }
             }
@@ -434,12 +436,32 @@ impl Room {
     }
 }
 
-// impl fmt::Debug for CryptsAndCaverns{
-//     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-//         for inner_vec in &cc.layout {
-//             let inner_vec_str: Vec<String> = inner_vec.iter().map(|&x| x.to_string()).collect();
-//             let joined_str = inner_vec_str.join(" ");
-//             println!("{}", joined_str);
-//         }
-//     }
-// }
+impl fmt::Debug for CryptsAndCaverns {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut map = "".to_string();
+        for i in 0..self.layout.len() {
+            let inner: Vec<String> = self.layout[i]
+                .iter()
+                .zip(self.doors[i].iter().zip(self.points[i].iter()))
+                .map(|(&x, (&y, &z))| {
+                    if x == 0 {
+                        "X".to_string()
+                    } else if y == 1 {
+                        "-".to_string()
+                    } else if z == 1 {
+                        "O".to_string()
+                    } else {
+                        " ".to_string()
+                    }
+                })
+                .collect();
+            map += &(inner.join(" ") + "\n");
+        }
+        let structure = if self.structure == 0 {
+            "Crypt".to_string()
+        } else {
+            "Cavern".to_string()
+        };
+        Ok(write!(f, "\n{}\n{}\n{}", self.name, structure, map).expect("Wow, it goes wrong here"))
+    }
+}

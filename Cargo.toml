@@ -7,3 +7,4 @@ version = "0.1.0"
 [dependencies]
 keccak = "0.1.4"
 uint = "0.9.5"
+log = "0.4.20"

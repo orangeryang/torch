@@ -1,43 +1,34 @@
-mod generator;
-mod random;
-mod seeds;
-
 extern crate keccak;
 extern crate uint;
 
 use uint::construct_uint;
+
+use generator::CryptsAndCaverns;
+
+mod generator;
+mod random;
+mod seeds;
+
 construct_uint! {
     pub struct U256(4);
 }
 
-use generator::{generate_map, CryptsAndCaverns};
-use U256 as u256;
-
 fn main() {
     println!("Hold your torch here!");
-
-    let mut input = String::new();
-    std::io::stdin()
-        .read_line(&mut input)
-        .expect("Strange input!");
-
-    let id: u32 = input.trim().parse().expect("Give me a number!");
-    let seed: u256 = if id < 1 || id > 9000 {
+    let id: u32 = {
+        let mut input = String::new();
+        std::io::stdin()
+            .read_line(&mut input)
+            .expect("Strange input!");
+        input.trim().parse().expect("Give me a number!")
+    };
+    let cc: CryptsAndCaverns = (if id < 1 || id > 9000 {
         println!("Oh, let's generate a random one...");
         seeds::generate_seed()
     } else {
-        println!("Your input ID was: {}", &input);
+        println!("Your input ID was: {}", id);
         seeds::get_seed(id)
-    };
-
-    let cc: CryptsAndCaverns = generate_map(seed);
-    // println!("{:?}", &cc);
-    
-    for inner_vec in &cc.layout {
-        let inner_vec_str: Vec<String> = inner_vec.iter().map(|&x| x.to_string()).collect();
-        let joined_str = inner_vec_str.join(" ");
-        println!("{}", joined_str);
-    }
-
-
+    })
+    .generate_map();
+    println!("{:?}", &cc);
 }
