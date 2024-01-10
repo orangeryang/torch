@@ -1,6 +1,5 @@
 use std::fmt;
 use std::fmt::Formatter;
-use std::str::FromStr;
 
 use crate::U256 as u256;
 
@@ -113,6 +112,7 @@ impl Settings {
         let mut num_of_rooms = self.random_add(size_divided_by_three, size);
         let mut rooms: Vec<Room> = Vec::new();
         let mut floor: Vec<Vec<u8>> = self.new_map();
+        let length_check = num_of_rooms;
 
         let mut safety_check: u16 = 257;
         while num_of_rooms > 0 && safety_check > 0 {
@@ -134,7 +134,7 @@ impl Settings {
             safety_check -= 1;
         }
 
-        while rooms.len() < num_of_rooms as usize {
+        while rooms.len() < length_check as usize {
             rooms.push(Room {
                 x: 0,
                 y: 0,
@@ -214,7 +214,7 @@ impl Settings {
         let unique_seed = self.seed.random_shift(15, 0, 10000);
 
         #[allow(unused_assignments)]
-            let mut name = String::new();
+        let mut name = String::new();
         let mut affinity = String::from("none");
         let mut legendary = 0;
 
