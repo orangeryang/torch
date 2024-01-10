@@ -170,8 +170,7 @@ pub const SUFFIX: [&str; 60] = [
     "Wrath",
 ];
 
-pub const UNIQUE: [&str; 18] = [
-    "Wrath",
+pub const UNIQUE: [&str; 17] = [
     "'Armageddon'",
     "'Mind's Eye'",
     "'Nostromo'",
