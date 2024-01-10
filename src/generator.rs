@@ -1,5 +1,6 @@
 use std::fmt;
 use std::fmt::Formatter;
+use std::str::FromStr;
 
 use crate::U256 as u256;
 
@@ -204,8 +205,8 @@ impl Settings {
     fn generate_cavern(&mut self) -> Vec<Vec<u8>> {
         let holes = self.size / 2;
 
-        let x = self.random_add(0, self.size);
-        let y = self.random_add(0, self.size);
+        let x = self.random_shift(0, self.size);
+        let y = self.random_shift(0, self.size);
         self.explore_in_cavern(self.new_map(), holes, 0, 0, x, y)
     }
 
@@ -213,7 +214,7 @@ impl Settings {
         let unique_seed = self.seed.random_shift(15, 0, 10000);
 
         #[allow(unused_assignments)]
-        let mut name = String::new();
+            let mut name = String::new();
         let mut affinity = String::from("none");
         let mut legendary = 0;
 
@@ -278,8 +279,8 @@ impl Settings {
         mut x: u32,
         mut y: u32,
     ) -> Vec<Vec<u8>> {
-        cavern.set(x,y);
-        
+        cavern.set(x, y);
+
         if last_direction == 0 {
             let new_direction = self.random_shift(1, 4);
             last_direction = new_direction;
@@ -317,8 +318,8 @@ impl Settings {
         if x > 0 && x < self.size && y > 0 && y < self.size {
             self.explore_in_cavern(cavern, holes, last_direction, next_direction, x, y)
         } else if holes > 1 {
-            x = self.random_add(0, self.size);
-            y = self.random_add(0, self.size);
+            x = self.random_shift(0, self.size);
+            y = self.random_shift(0, self.size);
             self.explore_in_cavern(cavern, holes - 1, last_direction, next_direction, x, y)
         } else {
             cavern
@@ -393,7 +394,7 @@ impl Map for Vec<Vec<u8>> {
             }
         }
     }
-    
+
     fn set(&mut self, x: u32, y: u32) {
         self[y as usize][x as usize] = 1;
     }
@@ -452,11 +453,11 @@ impl fmt::Debug for CryptsAndCaverns {
                 .zip(self.doors[i].iter().zip(self.points[i].iter()))
                 .map(|(&x, (&y, &z))| {
                     if x == 0 {
-                        "X".to_string()
+                        "#".to_string()
                     } else if y == 1 {
                         "-".to_string()
                     } else if z == 1 {
-                        "O".to_string()
+                        "o".to_string()
                     } else {
                         " ".to_string()
                     }
