@@ -82,11 +82,11 @@ impl Settings {
 
         let count = hallways.count();
         let doors = if count > 0 {
-            self.generate_points(&hallways, 40 / (count as f64).sqrt() as u32)
+            self.generate_points(&hallways, 40 / ((count as f64).sqrt() as u32))
         } else {
             self.new_map()
         };
-        let points = self.generate_points(&floor, 12 / ((self.size - 6) as f64).sqrt() as u32);
+        let points = self.generate_points(&floor, 12 / (((self.size - 6) as f64).sqrt() as u32));
 
         (layout, points, doors, 0)
     }
@@ -98,8 +98,8 @@ impl Settings {
             count = 7;
         }
 
-        let mut points = self.generate_points(&cavern, 12 / ((count - 6) as f64).sqrt() as u32);
-        let doors = self.generate_points(&cavern, 40 / (count as f64).sqrt() as u32);
+        let mut points = self.generate_points(&cavern, 12 / (((count - 6) as f64).sqrt() as u32));
+        let doors = self.generate_points(&cavern, 40 / ((count as f64).sqrt() as u32));
 
         points.subtract(&doors);
 
@@ -150,13 +150,13 @@ impl Settings {
         let mut hallways = self.new_map();
 
         if rooms.is_empty() {
-            return self.new_map();
+            return hallways;
         }
 
         let mut pre_x = rooms[0].x + rooms[0].width / 2;
         let mut pre_y = rooms[0].y + rooms[0].height / 2;
 
-        for i in 1..rooms.len() - 1 {
+        for i in 1..rooms.len() {
             let cur_x = rooms[i].x + rooms[i].width / 2;
             let cur_y = rooms[i].y + rooms[i].height / 2;
 
@@ -417,8 +417,8 @@ impl Map for Vec<Vec<u8>> {
 
     fn count(&self) -> u32 {
         let mut count = 0;
-        for i in 0..self.len() {
-            for j in 0..self[i].len() {
+        for j in 0..self.len() {
+            for i in 0..self[j].len() {
                 if self[j][i] == 1 {
                     count += 1;
                 }
