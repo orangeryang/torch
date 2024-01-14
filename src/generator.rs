@@ -455,7 +455,7 @@ impl fmt::Debug for CryptsAndCaverns {
                     if x == 0 {
                         "#".to_string()
                     } else if y == 1 {
-                        "-".to_string()
+                        "π".to_string()
                     } else if z == 1 {
                         "o".to_string()
                     } else {
